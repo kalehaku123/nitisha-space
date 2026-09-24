@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nitisha & Me | Our Space</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- Floating Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Navigation Header -->
+    <header class="glass-header">
+        <div class="logo">
+            Nitisha & Me ✨
+        </div>
+        <nav class="nav-links">
+            <a href="#counter"><i class="fa-solid fa-clock"></i> Time</a>
+            <a href="#music"><i class="fa-solid fa-compact-disc"></i> Jukebox</a>
+            <a href="#gallery"><i class="fa-solid fa-images"></i> Memories</a>
+            <a href="#vault"><i class="fa-solid fa-lock"></i> Vault</a>
+        </nav>
+        <div class="theme-toggle" id="themeBtn" title="Toggle Light/Dark Mode">
+            <i class="fa-solid fa-moon"></i>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Hero Section -->
+        <section class="hero glass-card">
+            <div class="hero-content">
+                <span class="pixel-tag"><i class="fa-solid fa-sparkles"></i> Our Universe</span>
+                <h1>For <span class="highlight-name">Nitisha</span> ✨</h1>
+                <p class="subtitle">A retro-inspired digital scrapbook, jukebox, and space reserved just for us.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" id="loveBurstBtn"><i class="fa-solid fa-heart"></i> Send Love</button>
+                    <a href="#vault" class="btn btn-secondary"><i class="fa-solid fa-key"></i> Open Vault</a>
+                </div>
+            </div>
+            <div class="hero-graphic">
+                <div class="pixel-art-heart">💖</div>
+            </div>
+        </section>
+
+        <!-- Time Counter Section -->
+        <section id="counter" class="glass-card section">
+            <h2><i class="fa-solid fa-stopwatch"></i> Days Together Counter</h2>
+            <p>Every second with you Nitisha is a precious memory.</p>
+            <div class="counter-grid">
+                <div class="time-box"><span id="days">00</span><p>Days</p></div>
+                <div class="time-box"><span id="hours">00</span><p>Hours</p></div>
+                <div class="time-box"><span id="minutes">00</span><p>Minutes</p></div>
+                <div class="time-box"><span id="seconds">00</span><p>Seconds</p></div>
+            </div>
+            <div class="date-picker-wrapper">
+                <label for="startDateInput"><i class="fa-solid fa-calendar-heart"></i> Relationship Start Date (August 15):</label>
+                <input type="date" id="startDateInput">
+            </div>
+        </section>
+
+        <!-- Customizable Music Jukebox Section -->
+        <section id="music" class="glass-card section">
+            <h2><i class="fa-solid fa-music"></i> Our Retro Jukebox</h2>
+            <p>Add and play your favorite romantic songs for Nitisha.</p>
+            
+            <div class="jukebox-container">
+                <div class="vinyl-wrapper">
+                    <div class="vinyl-record" id="vinyl">
+                        <div class="vinyl-center">🎵</div>
+                    </div>
+                </div>
+
+                <div class="player-controls">
+                    <h3 id="currentTrackTitle">No Song Selected</h3>
+                    <p id="currentTrackArtist" class="artist-sub">Add a song below to start playing</p>
+
+                    <audio id="audioPlayer" controls></audio>
+
+                    <!-- Playlist Display -->
+                    <div class="playlist-header">
+                        <h4><i class="fa-solid fa-list-check"></i> Your Song List</h4>
+                        <button class="btn btn-small btn-danger" id="clearPlaylistBtn" style="display:none;"><i class="fa-solid fa-trash"></i> Clear All</button>
+                    </div>
+                    <div class="playlist" id="playlist">
+                        <p class="empty-msg" id="emptyMsg">No songs added yet! Click below to add your songs.</p>
+                    </div>
+
+                    <!-- Song Upload Controls -->
+                    <div class="add-song-box">
+                        <h4><i class="fa-solid fa-plus-circle"></i> Add Music</h4>
+                        
+                        <div class="add-music-methods">
+                            <!-- Direct File Upload from Device -->
+                            <div class="upload-option">
+                                <label for="audioFileUpload" class="btn btn-primary btn-upload">
+                                    <i class="fa-solid fa-file-audio"></i> Upload MP3 Song File
+                                </label>
+                                <input type="file" id="audioFileUpload" accept="audio/*" style="display: none;">
+                            </div>
+
+                            <p class="or-divider">- OR -</p>
+
+                            <!-- Add via Title & Link/Path -->
+                            <div class="input-group">
+                                <input type="text" id="songTitle" placeholder="Song Title">
+                                <input type="text" id="songUrl" placeholder="MP3 Link or music/song.mp3">
+                                <button class="btn btn-secondary" id="addSongBtn"><i class="fa-solid fa-plus"></i> Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Photo Scrapbook Gallery -->
+        <section id="gallery" class="glass-card section">
+            <h2><i class="fa-solid fa-camera-retro"></i> Our Photo Scrapbook</h2>
+            <p>Upload and preserve our favorite moments together.</p>
+
+            <div class="upload-bar">
+                <label for="imageUpload" class="btn btn-secondary btn-upload">
+                    <i class="fa-solid fa-file-image"></i> Add Photo (.jpg, .png, etc.)
+                </label>
+                <!-- Fixed accept filter to accept all image types smoothly -->
+                <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: none;">
+                <input type="text" id="captionInput" placeholder="Add a sweet caption (optional)..." class="retro-input">
+            </div>
+
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Dynamic Photos Render Here -->
+            </div>
+        </section>
+
+        <!-- Secret Love Vault -->
+        <section id="vault" class="glass-card section">
+            <h2><i class="fa-solid fa-lock"></i> Secret Love Vault</h2>
+            <p>A private space for our secret love letters and promises.</p>
+
+            <div id="vaultLocked" class="vault-container">
+                <i class="fa-solid fa-key-skeleton vault-icon"></i>
+                <p>Enter passcode to open:</p>
+                <div class="passcode-input">
+                    <input type="password" id="vaultPasscode" placeholder="PIN" maxlength="10">
+                    <button class="btn btn-primary" id="unlockVaultBtn">Unlock</button>
+                </div>
+            </div>
+
+            <div id="vaultUnlocked" class="vault-container hidden">
+                <div class="vault-header">
+                    <span class="status-badge"><i class="fa-solid fa-lock-open"></i> Vault Unlocked</span>
+                    <button class="btn btn-small btn-secondary" id="lockVaultBtn">Lock Vault</button>
+                </div>
+
+                <div class="vault-editor">
+                    <h3>Write Secret Note</h3>
+                    <textarea id="secretNoteInput" placeholder="Write something meaningful for Nitisha..."></textarea>
+                    <button class="btn btn-primary" id="saveNoteBtn"><i class="fa-solid fa-floppy-disk"></i> Save Note</button>
+                </div>
+
+                <div class="notes-list" id="notesList">
+                    <!-- Saved Secret Notes -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p class="love-footer">i love youuu ❤️</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
