@@ -46,7 +46,7 @@ body.locked {
     overflow: hidden;
 }
 
-/* --- Lock Screen Styling --- */
+/* --- Fixed Fullscreen Lock Screen Overlay --- */
 .lock-screen-overlay {
     position: fixed;
     top: 0;
@@ -54,8 +54,9 @@ body.locked {
     width: 100vw;
     height: 100vh;
     background: linear-gradient(135deg, #0d0614, #1d0a27, #2c0722);
-    z-index: 9999;
+    z-index: 99999;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 1;
@@ -75,16 +76,17 @@ body.locked {
     width: 100%;
     height: 100%;
     pointer-events: none;
+    z-index: 1;
 }
 
 .lock-card {
     position: relative;
-    z-index: 2;
+    z-index: 10;
     text-align: center;
     max-width: 420px;
     width: 90%;
     padding: 2.5rem 2rem;
-    box-shadow: 0 0 35px rgba(255, 64, 129, 0.25);
+    box-shadow: 0 0 35px rgba(255, 64, 129, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.15);
     animation: lockPulse 4s infinite alternate;
 }
