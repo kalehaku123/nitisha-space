@@ -1,300 +1,590 @@
-// --- Floating Hearts Background ---
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-class Particle {
-    constructor() { this.reset(); }
-    reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 20;
-        this.size = Math.random() * 12 + 8;
-        this.speedY = Math.random() * 1 + 0.5;
-        this.opacity = Math.random() * 0.5 + 0.3;
-        this.type = Math.random() > 0.5 ? '❤️' : '✨';
-    }
-    update() {
-        this.y -= this.speedY;
-        if (this.y < -20) this.reset();
-    }
-    draw() {
-        ctx.globalAlpha = this.opacity;
-        ctx.font = `${this.size}px serif`;
-        ctx.fillText(this.type, this.x, this.y);
-    }
+/* --- Root Variables & Theme Colors --- */
+:root {
+    --bg-gradient: linear-gradient(135deg, #0f0c1b, #1a0f2e, #2d1138);
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #ffffff;
+    --text-secondary: #c3b8d8;
+    --accent-pink: #ff4081;
+    --accent-hover: #ff79b0;
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-pixel: 'VT323', monospace;
 }
 
-for (let i = 0; i < 25; i++) particles.push(new Particle());
-
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animateParticles);
+[data-theme="light"] {
+    --bg-gradient: linear-gradient(135deg, #fff5f8, #f3e8ff, #ffe5ec);
+    --card-bg: rgba(255, 255, 255, 0.65);
+    --card-border: rgba(255, 255, 255, 0.8);
+    --text-primary: #2d1138;
+    --text-secondary: #5f4870;
+    --accent-pink: #d81b60;
+    --accent-hover: #ff4081;
+    --shadow: 0 8px 32px 0 rgba(216, 27, 96, 0.12);
 }
-animateParticles();
 
-// --- Theme Toggle ---
-const themeBtn = document.getElementById('themeBtn');
-themeBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    themeBtn.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
-});
+/* --- Base Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
 
-// --- Love Burst Confetti ---
-document.getElementById('loveBurstBtn').addEventListener('click', () => {
-    confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff4081', '#ff79b0', '#ffffff']
-    });
-});
+body {
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
+}
 
-// --- Anniversary Counter (August 15, 2026) ---
-const startDateInput = document.getElementById('startDateInput');
-let startDate = localStorage.getItem('anniversaryDate') || '2026-08-15';
-startDateInput.value = startDate;
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
 
-startDateInput.addEventListener('change', (e) => {
-    startDate = e.target.value;
-    localStorage.setItem('anniversaryDate', startDate);
-});
+/* --- Navigation Header --- */
+.glass-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+}
 
-function updateCounter() {
-    const start = new Date(startDate).getTime();
-    const now = new Date().getTime();
-    const diff = now - start;
+.logo {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent-pink);
+    letter-spacing: 0.5px;
+}
 
-    if (diff < 0) {
-        document.getElementById('days').innerText = "00";
-        document.getElementById('hours').innerText = "00";
-        document.getElementById('minutes').innerText = "00";
-        document.getElementById('seconds').innerText = "00";
-        return;
+/* --- Animated Logo Glow --- */
+.logo-animated {
+    display: inline-block;
+    animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(255, 64, 129, 0.4), 0 0 10px rgba(255, 64, 129, 0.2);
+    }
+    50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 12px rgba(255, 64, 129, 0.8), 0 0 20px rgba(255, 121, 176, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(255, 64, 129, 0.4), 0 0 10px rgba(255, 64, 129, 0.2);
+    }
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--accent-pink);
+}
+
+.theme-toggle {
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: rotate(20deg);
+}
+
+/* --- Main Layout --- */
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+/* --- Hero Section --- */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.pixel-tag {
+    font-family: var(--font-pixel);
+    font-size: 1.2rem;
+    color: var(--accent-pink);
+    letter-spacing: 1px;
+}
+
+.hero h1 {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    margin: 0.5rem 0;
+}
+
+.highlight-name {
+    color: var(--accent-pink);
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.pixel-art-heart {
+    font-size: 5rem;
+    animation: float 3s infinite ease-in-out;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* --- Buttons --- */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--accent-pink);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn-danger {
+    background: #ff4d4d;
+    color: white;
+}
+
+/* --- Counter Section --- */
+.counter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.time-box {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.time-box span {
+    font-family: var(--font-pixel);
+    font-size: 3rem;
+    color: var(--accent-pink);
+}
+
+.time-box p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.date-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.date-picker-wrapper input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+}
+
+/* --- Animated Jukebox Section --- */
+.jukebox-container {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+    align-items: center;
+}
+
+.vinyl-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.vinyl-record {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff4081 12%, #111 13%, #222 18%, #111 20%, #151515 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    transition: transform 0.5s ease;
+}
+
+.vinyl-record.playing {
+    animation: spinVinyl 2.5s linear infinite;
+    box-shadow: 0 0 25px var(--accent-pink);
+}
+
+@keyframes spinVinyl {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.vinyl-center {
+    font-size: 1.8rem;
+    z-index: 2;
+}
+
+.tonearm {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    width: 50px;
+    height: 80px;
+    border-right: 4px solid #aaa;
+    border-top: 4px solid #aaa;
+    border-top-right-radius: 10px;
+    transform-origin: top right;
+    transform: rotate(-30deg);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+}
+
+.vinyl-wrapper.playing .tonearm {
+    transform: rotate(10deg);
+}
+
+.equalizer-bars {
+    display: flex;
+    gap: 4px;
+    height: 25px;
+    align-items: flex-end;
+    margin: 0.8rem 0;
+}
+
+.equalizer-bars .bar {
+    width: 6px;
+    height: 5px;
+    background: var(--accent-pink);
+    border-radius: 3px;
+    transition: height 0.2s ease;
+}
+
+.equalizer-bars.playing .bar {
+    animation: bounce 0.6s ease-in-out infinite alternate;
+}
+
+.equalizer-bars.playing .bar:nth-child(1) { animation-delay: 0.1s; }
+.equalizer-bars.playing .bar:nth-child(2) { animation-delay: 0.3s; }
+.equalizer-bars.playing .bar:nth-child(3) { animation-delay: 0.2s; }
+.equalizer-bars.playing .bar:nth-child(4) { animation-delay: 0.5s; }
+.equalizer-bars.playing .bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0% { height: 4px; }
+    100% { height: 25px; }
+}
+
+.player-controls {
+    flex: 1;
+}
+
+.artist-sub {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+audio {
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.playlist {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 0.8rem;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.playlist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.playlist-item:hover, .playlist-item.active {
+    background: rgba(255, 64, 129, 0.2);
+    color: var(--accent-pink);
+}
+
+.add-music-methods {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+/* --- Photo Scrapbook Section --- */
+.upload-bar {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.retro-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+}
+
+.polaroid {
+    background: #ffffff;
+    color: #222222;
+    padding: 10px 10px 15px 10px;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transform: rotate(-2deg);
+    transition: transform 0.3s ease;
+}
+
+.polaroid:nth-child(even) {
+    transform: rotate(2deg);
+}
+
+.polaroid:hover {
+    transform: scale(1.05) rotate(0deg);
+    z-index: 10;
+}
+
+.polaroid img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.polaroid p {
+    font-family: var(--font-heading);
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+.delete-photo-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Vault Section --- */
+.vault-container {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.vault-icon {
+    font-size: 3rem;
+    color: var(--accent-pink);
+    margin-bottom: 1rem;
+}
+
+.passcode-input {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.passcode-input input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 8px;
+    width: 120px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.hidden {
+    display: none;
+}
+
+.vault-editor textarea {
+    width: 100%;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 0.8rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    resize: none;
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.note-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid var(--accent-pink);
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-secondary);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
     }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    document.getElementById('days').innerText = String(days).padStart(2, '0');
-    document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-    document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
-}
-setInterval(updateCounter, 1000);
-
-// --- Custom Animated Music Jukebox ---
-const audioPlayer = document.getElementById('audioPlayer');
-const vinyl = document.getElementById('vinyl');
-const vinylWrapper = document.getElementById('vinylWrapper');
-const equalizer = document.getElementById('equalizer');
-const currentTrackTitle = document.getElementById('currentTrackTitle');
-const currentTrackArtist = document.getElementById('currentTrackArtist');
-const playlistContainer = document.getElementById('playlist');
-const emptyMsg = document.getElementById('emptyMsg');
-
-// Default 3 Permanent Songs
-const defaultPlaylist = [
-    { title: 'Song 1', url: 'song1.mp3' },
-    { title: 'Song 2', url: 'song2.mp3' },
-    { title: 'Song 3', url: 'song3.mp3' }
-];
-
-let playlist = JSON.parse(localStorage.getItem('myCustomPlaylist')) || defaultPlaylist;
-
-function renderPlaylist() {
-    playlistContainer.innerHTML = '';
-    
-    if (playlist.length === 0) {
-        playlistContainer.appendChild(emptyMsg);
-        emptyMsg.style.display = 'block';
-        currentTrackTitle.innerText = "No Song Selected";
-        currentTrackArtist.innerText = "Select a song to start";
-        return;
+    .hero-actions {
+        justify-content: center;
     }
 
-    emptyMsg.style.display = 'none';
-
-    playlist.forEach((song, index) => {
-        const item = document.createElement('div');
-        item.className = 'playlist-item';
-        item.innerHTML = `
-            <span><i class="fa-solid fa-music"></i> ${song.title}</span>
-            <i class="fa-solid fa-trash delete-song-btn" title="Remove Song"></i>
-        `;
-        
-        item.querySelector('span').addEventListener('click', () => playTrack(index));
-        item.querySelector('.delete-song-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteSong(index);
-        });
-
-        playlistContainer.appendChild(item);
-    });
-}
-
-function playTrack(index) {
-    if (!playlist[index]) return;
-    audioPlayer.src = playlist[index].url;
-    currentTrackTitle.innerText = playlist[index].title;
-    currentTrackArtist.innerText = "Playing for Nitisha ❤️";
-    
-    // Highlight active item
-    document.querySelectorAll('.playlist-item').forEach((el, i) => {
-        el.classList.toggle('active', i === index);
-    });
-
-    audioPlayer.play();
-}
-
-function deleteSong(index) {
-    playlist.splice(index, 1);
-    localStorage.setItem('myCustomPlaylist', JSON.stringify(playlist));
-    renderPlaylist();
-}
-
-// File Upload Handler
-document.getElementById('audioFileUpload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const songName = file.name.replace(/\.[^/.]+$/, "");
-        const fileURL = URL.createObjectURL(file);
-        
-        playlist.push({ title: songName, url: fileURL });
-        localStorage.setItem('myCustomPlaylist', JSON.stringify(playlist));
-        renderPlaylist();
-        playTrack(playlist.length - 1);
+    .counter-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-});
 
-// Animations on Play / Pause
-audioPlayer.addEventListener('play', () => {
-    vinyl.classList.add('playing');
-    vinylWrapper.classList.add('playing');
-    equalizer.classList.add('playing');
-});
-
-audioPlayer.addEventListener('pause', () => {
-    vinyl.classList.remove('playing');
-    vinylWrapper.classList.remove('playing');
-    equalizer.classList.remove('playing');
-});
-
-renderPlaylist();
-
-// --- Interactive Photo Scrapbook Gallery ---
-const galleryGrid = document.getElementById('galleryGrid');
-
-// 7 Permanent Photos
-const defaultPhotos = [
-    { url: 'photo1.jpg', caption: '' },
-    { url: 'photo2.jpg', caption: '' },
-    { url: 'photo3.jpg', caption: '' },
-    { url: 'photo4.jpg', caption: '' },
-    { url: 'photo5.jpg', caption: '' },
-    { url: 'photo6.jpg', caption: '' },
-    { url: 'photo7.jpg', caption: '' }
-];
-
-let photos = JSON.parse(localStorage.getItem('nitishaPhotos')) || defaultPhotos;
-
-function renderGallery() {
-    galleryGrid.innerHTML = '';
-    if (photos.length === 0) {
-        galleryGrid.innerHTML = '<p class="empty-msg" style="grid-column: 1/-1;">No photos added yet.</p>';
-        return;
+    .jukebox-container {
+        flex-direction: column;
     }
-    photos.forEach((photo, index) => {
-        const item = document.createElement('div');
-        item.className = 'polaroid';
-        const captionHTML = photo.caption ? `<p>${photo.caption}</p>` : '';
-        item.innerHTML = `
-            <button class="delete-photo-btn" onclick="deletePhoto(${index})"><i class="fa-solid fa-xmark"></i></button>
-            <img src="${photo.url}" alt="Memory">
-            ${captionHTML}
-        `;
-        galleryGrid.appendChild(item);
-    });
+
+    .nav-links {
+        display: none;
+    }
 }
-
-function deletePhoto(index) {
-    photos.splice(index, 1);
-    localStorage.setItem('nitishaPhotos', JSON.stringify(photos));
-    renderGallery();
-}
-
-document.getElementById('imageUpload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    const caption = document.getElementById('captionInput').value.trim();
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            photos.unshift({ url: event.target.result, caption: caption });
-            localStorage.setItem('nitishaPhotos', JSON.stringify(photos));
-            renderGallery();
-            document.getElementById('captionInput').value = '';
-        };
-        reader.readAsDataURL(file);
-    }
-});
-renderGallery();
-
-// --- Secret Vault Passcode (PIN: 1429) ---
-const VAULT_PASSCODE = '1429';
-const vaultLocked = document.getElementById('vaultLocked');
-const vaultUnlocked = document.getElementById('vaultUnlocked');
-
-document.getElementById('unlockVaultBtn').addEventListener('click', () => {
-    const pin = document.getElementById('vaultPasscode').value;
-    if (pin === VAULT_PASSCODE) {
-        vaultLocked.classList.add('hidden');
-        vaultUnlocked.classList.remove('hidden');
-        renderNotes();
-    } else {
-        alert('Incorrect passcode!');
-        document.getElementById('vaultPasscode').value = '';
-    }
-});
-
-document.getElementById('lockVaultBtn').addEventListener('click', () => {
-    vaultUnlocked.classList.add('hidden');
-    vaultLocked.classList.remove('hidden');
-    document.getElementById('vaultPasscode').value = '';
-});
-
-// Vault Secret Notes
-let secretNotes = JSON.parse(localStorage.getItem('vaultNotes')) || [
-    "August 15, 2026 - The day our story officially began. I promise to love and cherish you every single day, Nitisha ❤️"
-];
-
-function renderNotes() {
-    const notesList = document.getElementById('notesList');
-    notesList.innerHTML = '';
-    secretNotes.forEach(note => {
-        const card = document.createElement('div');
-        card.className = 'note-card';
-        card.innerText = note;
-        notesList.appendChild(card);
-    });
-}
-
-document.getElementById('saveNoteBtn').addEventListener('click', () => {
-    const input = document.getElementById('secretNoteInput');
-    if (input.value.trim()) {
-        secretNotes.unshift(input.value.trim());
-        localStorage.setItem('vaultNotes', JSON.stringify(secretNotes));
-        renderNotes();
-        input.value = '';
-    }
-});

@@ -69,9 +69,31 @@ body {
 
 .logo {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--accent-pink);
+    letter-spacing: 0.5px;
+}
+
+/* --- Animated Logo Glow --- */
+.logo-animated {
+    display: inline-block;
+    animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(255, 64, 129, 0.4), 0 0 10px rgba(255, 64, 129, 0.2);
+    }
+    50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 12px rgba(255, 64, 129, 0.8), 0 0 20px rgba(255, 121, 176, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(255, 64, 129, 0.4), 0 0 10px rgba(255, 64, 129, 0.2);
+    }
 }
 
 .nav-links {
@@ -291,7 +313,6 @@ body {
     transition: transform 0.5s ease;
 }
 
-/* Spinning Animation */
 .vinyl-record.playing {
     animation: spinVinyl 2.5s linear infinite;
     box-shadow: 0 0 25px var(--accent-pink);
@@ -307,7 +328,6 @@ body {
     z-index: 2;
 }
 
-/* Tonearm Needle Animation */
 .tonearm {
     position: absolute;
     top: -10px;
@@ -327,7 +347,6 @@ body {
     transform: rotate(10deg);
 }
 
-/* Equalizer Visualizer */
 .equalizer-bars {
     display: flex;
     gap: 4px;
