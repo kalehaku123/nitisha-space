@@ -67,7 +67,6 @@
         <!-- Animated Music Jukebox Section -->
         <section id="music" class="glass-card section">
             <h2><i class="fa-solid fa-music"></i> Our Retro Jukebox</h2>
-            <p>Select and play romantic melodies dedicated to Nitisha.</p>
             
             <div class="jukebox-container">
                 <div class="vinyl-wrapper" id="vinylWrapper">
@@ -121,11 +120,10 @@
         <!-- Photo Scrapbook Gallery -->
         <section id="gallery" class="glass-card section">
             <h2><i class="fa-solid fa-camera-retro"></i> Our Photo Scrapbook</h2>
-            <p>Upload and preserve our favorite moments together.</p>
 
             <div class="upload-bar">
                 <label for="imageUpload" class="btn btn-secondary btn-upload">
-                    <i class="fa-solid fa-file-image"></i> Add Photo (.jpg, .png, .jpeg)
+                    <i class="fa-solid fa-file-image"></i> Add Photo
                 </label>
                 <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                 <input type="text" id="captionInput" placeholder="Add a caption (optional)..." class="retro-input">
@@ -169,6 +167,13 @@
         </section>
 
     </main>
+
+    <!-- Photo Zoom Modal Lightbox -->
+    <div id="photoModal" class="photo-modal">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <div id="modalCaption" class="modal-caption"></div>
+    </div>
 
     <footer>
         <p class="love-footer">i love youuu ❤️</p>

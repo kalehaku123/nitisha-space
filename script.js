@@ -104,11 +104,11 @@ const currentTrackArtist = document.getElementById('currentTrackArtist');
 const playlistContainer = document.getElementById('playlist');
 const emptyMsg = document.getElementById('emptyMsg');
 
-// Default 3 Permanent Songs
+// Default 3 Permanent Songs with updated names
 const defaultPlaylist = [
-    { title: 'Song 1', url: 'song1.mp3' },
-    { title: 'Song 2', url: 'song2.mp3' },
-    { title: 'Song 3', url: 'song3.mp3' }
+    { title: 'My Love Mine All Mine', url: 'song1.mp3' },
+    { title: 'Tum Se Hi', url: 'song2.mp3' },
+    { title: 'Treat You Better', url: 'song3.mp3' }
 ];
 
 let playlist = JSON.parse(localStorage.getItem('myCustomPlaylist')) || defaultPlaylist;
@@ -217,15 +217,20 @@ function renderGallery() {
         item.className = 'polaroid';
         const captionHTML = photo.caption ? `<p>${photo.caption}</p>` : '';
         item.innerHTML = `
-            <button class="delete-photo-btn" onclick="deletePhoto(${index})"><i class="fa-solid fa-xmark"></i></button>
+            <button class="delete-photo-btn" onclick="deletePhoto(event, ${index})"><i class="fa-solid fa-xmark"></i></button>
             <img src="${photo.url}" alt="Memory">
             ${captionHTML}
         `;
+        
+        // Open Zoom Modal on Click
+        item.addEventListener('click', () => openPhotoModal(photo.url, photo.caption));
+
         galleryGrid.appendChild(item);
     });
 }
 
-function deletePhoto(index) {
+function deletePhoto(event, index) {
+    event.stopPropagation();
     photos.splice(index, 1);
     localStorage.setItem('nitishaPhotos', JSON.stringify(photos));
     renderGallery();
@@ -246,6 +251,28 @@ document.getElementById('imageUpload').addEventListener('change', (e) => {
     }
 });
 renderGallery();
+
+// --- Photo Lightbox / Zoom Logic ---
+const photoModal = document.getElementById('photoModal');
+const modalImg = document.getElementById('modalImg');
+const modalCaption = document.getElementById('modalCaption');
+const modalClose = document.getElementById('modalClose');
+
+function openPhotoModal(url, caption) {
+    photoModal.style.display = 'block';
+    modalImg.src = url;
+    modalCaption.innerText = caption || 'Nitisha & Me ❤️';
+}
+
+modalClose.addEventListener('click', () => {
+    photoModal.style.display = 'none';
+});
+
+photoModal.addEventListener('click', (e) => {
+    if (e.target === photoModal) {
+        photoModal.style.display = 'none';
+    }
+});
 
 // --- Secret Vault Passcode (PIN: 1429) ---
 const VAULT_PASSCODE = '1429';

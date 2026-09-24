@@ -75,7 +75,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Logo Glow & Pulse Animation */
 .logo-animated {
     display: inline-block;
     animation: logoGlow 3s ease-in-out infinite alternate;
@@ -455,6 +454,7 @@ audio {
     position: relative;
     transform: rotate(-2deg);
     transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
 .polaroid:nth-child(even) {
@@ -494,6 +494,64 @@ audio {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 5;
+}
+
+/* --- Photo Zoom Modal / Lightbox --- */
+.photo-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(255, 64, 129, 0.5);
+    animation: zoomAnimation 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes zoomAnimation {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #fff;
+    padding: 15px 0;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: var(--accent-pink);
 }
 
 /* --- Vault Section --- */
