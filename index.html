@@ -11,6 +11,22 @@
 </head>
 <body>
 
+    <!-- Fullscreen Romantic Lock Screen Overlay -->
+    <div id="siteLockScreen" class="lock-screen-overlay">
+        <canvas id="bloomingCanvas"></canvas>
+        <div class="lock-card glass-card">
+            <div class="lock-icon"><i class="fa-solid fa-heart-lock"></i></div>
+            <h2>Our Private Space</h2>
+            <p class="lock-subtitle">Enter our secret password to enter Nitisha ❤️</p>
+            
+            <div class="lock-input-group">
+                <input type="password" id="sitePasswordInput" placeholder="Enter password..." autocomplete="off">
+                <button id="unlockSiteBtn" class="btn btn-primary"><i class="fa-solid fa-key"></i> Enter</button>
+            </div>
+            <p id="lockErrorMsg" class="lock-error-msg"></p>
+        </div>
+    </div>
+
     <!-- Floating Background Canvas -->
     <canvas id="bg-canvas"></canvas>
 
@@ -37,7 +53,7 @@
             <div class="hero-content">
                 <span class="pixel-tag"><i class="fa-solid fa-sparkles"></i> Our Universe</span>
                 <h1>For <span class="highlight-name">Nitisha</span> ✨</h1>
-                <p class="subtitle">A retro-inspired digital scrapbook, jukebox, and space reserved just for us.</p>
+                <p class="subtitle">A quiet sanctuary built with love—where time stands still, every memory belongs to us, and my heart forever finds its home in yours.</p>
                 <div class="hero-actions">
                     <button class="btn btn-primary" id="loveBurstBtn"><i class="fa-solid fa-heart"></i> Send Love</button>
                     <a href="#vault" class="btn btn-secondary"><i class="fa-solid fa-key"></i> Open Vault</a>
@@ -81,7 +97,6 @@
                     <h3 id="currentTrackTitle">No Song Playing</h3>
                     <p id="currentTrackArtist" class="artist-sub">Select a track below to start music</p>
 
-                    <!-- Animated Equalizer Bars -->
                     <div class="equalizer-bars" id="equalizer">
                         <div class="bar"></div>
                         <div class="bar"></div>
@@ -92,7 +107,6 @@
 
                     <audio id="audioPlayer" controls></audio>
 
-                    <!-- Playlist Display -->
                     <div class="playlist-header">
                         <h4><i class="fa-solid fa-list-check"></i> Playlist</h4>
                         <button class="btn btn-small btn-danger" id="clearPlaylistBtn" style="display:none;"><i class="fa-solid fa-trash"></i> Reset</button>
@@ -101,7 +115,6 @@
                         <p class="empty-msg" id="emptyMsg">No songs available.</p>
                     </div>
 
-                    <!-- Additional Song Upload -->
                     <div class="add-song-box">
                         <h4><i class="fa-solid fa-plus-circle"></i> Add More Music</h4>
                         <div class="add-music-methods">
@@ -129,9 +142,7 @@
                 <input type="text" id="captionInput" placeholder="Add a caption (optional)..." class="retro-input">
             </div>
 
-            <div class="gallery-grid" id="galleryGrid">
-                <!-- Dynamic Photos Render Here -->
-            </div>
+            <div class="gallery-grid" id="galleryGrid"></div>
         </section>
 
         <!-- Secret Love Vault -->
@@ -160,9 +171,7 @@
                     <button class="btn btn-primary" id="saveNoteBtn"><i class="fa-solid fa-floppy-disk"></i> Save Note</button>
                 </div>
 
-                <div class="notes-list" id="notesList">
-                    <!-- Saved Secret Notes -->
-                </div>
+                <div class="notes-list" id="notesList"></div>
             </div>
         </section>
 

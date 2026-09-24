@@ -1,4 +1,91 @@
-// --- Floating Hearts Background ---
+// --- Fullscreen Blooming Heart/Flower Lock Screen ---
+document.body.classList.add('locked');
+
+const bloomingCanvas = document.getElementById('bloomingCanvas');
+const bCtx = bloomingCanvas.getContext('2d');
+let bloomParticles = [];
+
+function resizeBloomCanvas() {
+    bloomingCanvas.width = window.innerWidth;
+    bloomingCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeBloomCanvas);
+resizeBloomCanvas();
+
+class BloomParticle {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * bloomingCanvas.width;
+        this.y = bloomingCanvas.height + Math.random() * 50;
+        this.size = Math.random() * 18 + 10;
+        this.speedY = Math.random() * 1.2 + 0.6;
+        this.speedX = Math.sin(Math.random() * Math.PI) * 0.8;
+        this.opacity = Math.random() * 0.7 + 0.3;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotSpeed = (Math.random() - 0.5) * 0.03;
+        const symbols = ['🌸', '💖', '🌺', '✨', '🌹'];
+        this.type = symbols[Math.floor(Math.random() * symbols.length)];
+    }
+    update() {
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        this.rotation += this.rotSpeed;
+        if (this.y < -30) this.reset();
+    }
+    draw() {
+        bCtx.save();
+        bCtx.globalAlpha = this.opacity;
+        bCtx.translate(this.x, this.y);
+        bCtx.rotate(this.rotation);
+        bCtx.font = `${this.size}px serif`;
+        bCtx.textAlign = 'center';
+        bCtx.textBaseline = 'middle';
+        bCtx.fillText(this.type, 0, 0);
+        bCtx.restore();
+    }
+}
+
+for (let i = 0; i < 40; i++) bloomParticles.push(new BloomParticle());
+
+function animateBloom() {
+    if (document.getElementById('siteLockScreen').classList.contains('unlocked')) return;
+    bCtx.clearRect(0, 0, bloomingCanvas.width, bloomingCanvas.height);
+    bloomParticles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateBloom);
+}
+animateBloom();
+
+// Password Check Logic
+const siteLockScreen = document.getElementById('siteLockScreen');
+const sitePasswordInput = document.getElementById('sitePasswordInput');
+const unlockSiteBtn = document.getElementById('unlockSiteBtn');
+const lockErrorMsg = document.getElementById('lockErrorMsg');
+
+function handleSiteUnlock() {
+    const entered = sitePasswordInput.value.trim().toLowerCase();
+    if (entered === 'iloveyounitisha' || entered === 'iloveyoushrijan') {
+        siteLockScreen.classList.add('unlocked');
+        document.body.classList.remove('locked');
+        confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.5 },
+            colors: ['#ff4081', '#ff79b0', '#ffffff', '#ff1493']
+        });
+    } else {
+        lockErrorMsg.innerText = "Incorrect password! Hint: iloveyou...";
+        sitePasswordInput.value = '';
+    }
+}
+
+unlockSiteBtn.addEventListener('click', handleSiteUnlock);
+sitePasswordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSiteUnlock();
+});
+
+// --- Floating Background Hearts Canvas ---
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -104,7 +191,6 @@ const currentTrackArtist = document.getElementById('currentTrackArtist');
 const playlistContainer = document.getElementById('playlist');
 const emptyMsg = document.getElementById('emptyMsg');
 
-// Default 3 Permanent Songs with updated names
 const defaultPlaylist = [
     { title: 'My Love Mine All Mine', url: 'song1.mp3' },
     { title: 'Tum Se Hi', url: 'song2.mp3' },
@@ -193,7 +279,6 @@ renderPlaylist();
 // --- Interactive Photo Scrapbook Gallery ---
 const galleryGrid = document.getElementById('galleryGrid');
 
-// 7 Permanent Photos
 const defaultPhotos = [
     { url: 'photo1.jpg', caption: '' },
     { url: 'photo2.jpg', caption: '' },
@@ -222,7 +307,6 @@ function renderGallery() {
             ${captionHTML}
         `;
         
-        // Open Zoom Modal on Click
         item.addEventListener('click', () => openPhotoModal(photo.url, photo.caption));
 
         galleryGrid.appendChild(item);
