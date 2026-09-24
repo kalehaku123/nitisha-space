@@ -59,7 +59,7 @@ document.getElementById('loveBurstBtn').addEventListener('click', () => {
     });
 });
 
-// --- Anniversary Counter (Set to August 15, 2026) ---
+// --- Anniversary Counter (August 15, 2026) ---
 const startDateInput = document.getElementById('startDateInput');
 let startDate = localStorage.getItem('anniversaryDate') || '2026-08-15';
 startDateInput.value = startDate;
@@ -94,16 +94,24 @@ function updateCounter() {
 }
 setInterval(updateCounter, 1000);
 
-// --- Custom Music Jukebox ---
+// --- Custom Animated Music Jukebox ---
 const audioPlayer = document.getElementById('audioPlayer');
 const vinyl = document.getElementById('vinyl');
+const vinylWrapper = document.getElementById('vinylWrapper');
+const equalizer = document.getElementById('equalizer');
 const currentTrackTitle = document.getElementById('currentTrackTitle');
 const currentTrackArtist = document.getElementById('currentTrackArtist');
 const playlistContainer = document.getElementById('playlist');
 const emptyMsg = document.getElementById('emptyMsg');
-const clearPlaylistBtn = document.getElementById('clearPlaylistBtn');
 
-let playlist = JSON.parse(localStorage.getItem('myCustomPlaylist')) || [];
+// Default 3 Permanent Songs
+const defaultPlaylist = [
+    { title: 'Song 1', url: 'song1.mp3' },
+    { title: 'Song 2', url: 'song2.mp3' },
+    { title: 'Song 3', url: 'song3.mp3' }
+];
+
+let playlist = JSON.parse(localStorage.getItem('myCustomPlaylist')) || defaultPlaylist;
 
 function renderPlaylist() {
     playlistContainer.innerHTML = '';
@@ -111,14 +119,12 @@ function renderPlaylist() {
     if (playlist.length === 0) {
         playlistContainer.appendChild(emptyMsg);
         emptyMsg.style.display = 'block';
-        clearPlaylistBtn.style.display = 'none';
         currentTrackTitle.innerText = "No Song Selected";
-        currentTrackArtist.innerText = "Add a song below to start playing";
+        currentTrackArtist.innerText = "Select a song to start";
         return;
     }
 
     emptyMsg.style.display = 'none';
-    clearPlaylistBtn.style.display = 'inline-block';
 
     playlist.forEach((song, index) => {
         const item = document.createElement('div');
@@ -143,8 +149,13 @@ function playTrack(index) {
     audioPlayer.src = playlist[index].url;
     currentTrackTitle.innerText = playlist[index].title;
     currentTrackArtist.innerText = "Playing for Nitisha ❤️";
+    
+    // Highlight active item
+    document.querySelectorAll('.playlist-item').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+    });
+
     audioPlayer.play();
-    vinyl.classList.add('playing');
 }
 
 function deleteSong(index) {
@@ -153,18 +164,7 @@ function deleteSong(index) {
     renderPlaylist();
 }
 
-clearPlaylistBtn.addEventListener('click', () => {
-    if (confirm("Clear all songs from your jukebox?")) {
-        playlist = [];
-        localStorage.removeItem('myCustomPlaylist');
-        audioPlayer.pause();
-        audioPlayer.src = "";
-        vinyl.classList.remove('playing');
-        renderPlaylist();
-    }
-});
-
-// File Upload MP3 Handler
+// File Upload Handler
 document.getElementById('audioFileUpload').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -178,22 +178,19 @@ document.getElementById('audioFileUpload').addEventListener('change', (e) => {
     }
 });
 
-// Manual Text Input Add Song
-document.getElementById('addSongBtn').addEventListener('click', () => {
-    const title = document.getElementById('songTitle').value.trim();
-    const url = document.getElementById('songUrl').value.trim();
-    if (title && url) {
-        playlist.push({ title, url });
-        localStorage.setItem('myCustomPlaylist', JSON.stringify(playlist));
-        renderPlaylist();
-        document.getElementById('songTitle').value = '';
-        document.getElementById('songUrl').value = '';
-        playTrack(playlist.length - 1);
-    }
+// Animations on Play / Pause
+audioPlayer.addEventListener('play', () => {
+    vinyl.classList.add('playing');
+    vinylWrapper.classList.add('playing');
+    equalizer.classList.add('playing');
 });
 
-audioPlayer.addEventListener('pause', () => vinyl.classList.remove('playing'));
-audioPlayer.addEventListener('play', () => vinyl.classList.add('playing'));
+audioPlayer.addEventListener('pause', () => {
+    vinyl.classList.remove('playing');
+    vinylWrapper.classList.remove('playing');
+    equalizer.classList.remove('playing');
+});
+
 renderPlaylist();
 
 // --- Interactive Photo Scrapbook Gallery ---
@@ -215,7 +212,7 @@ let photos = JSON.parse(localStorage.getItem('nitishaPhotos')) || defaultPhotos;
 function renderGallery() {
     galleryGrid.innerHTML = '';
     if (photos.length === 0) {
-        galleryGrid.innerHTML = '<p class="empty-msg" style="grid-column: 1/-1;">No photos added yet. Click "Add Photo" to upload your favorite memory with Nitisha!</p>';
+        galleryGrid.innerHTML = '<p class="empty-msg" style="grid-column: 1/-1;">No photos added yet.</p>';
         return;
     }
     photos.forEach((photo, index) => {

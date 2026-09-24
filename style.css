@@ -261,35 +261,102 @@ body {
     border-radius: 8px;
 }
 
-/* --- Jukebox Section --- */
+/* --- Animated Jukebox Section --- */
 .jukebox-container {
     display: flex;
-    gap: 2rem;
+    gap: 2.5rem;
     margin-top: 1.5rem;
     align-items: center;
 }
 
-.vinyl-record {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #333 20%, #111 21%, #111 40%, #222 41%, #111 100%);
+.vinyl-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 3px solid rgba(255, 255, 255, 0.1);
 }
 
+.vinyl-record {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff4081 12%, #111 13%, #222 18%, #111 20%, #151515 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    transition: transform 0.5s ease;
+}
+
+/* Spinning Animation */
 .vinyl-record.playing {
-    animation: spin 4s linear infinite;
+    animation: spinVinyl 2.5s linear infinite;
+    box-shadow: 0 0 25px var(--accent-pink);
 }
 
-@keyframes spin {
+@keyframes spinVinyl {
+    0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
 .vinyl-center {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    z-index: 2;
+}
+
+/* Tonearm Needle Animation */
+.tonearm {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    width: 50px;
+    height: 80px;
+    border-right: 4px solid #aaa;
+    border-top: 4px solid #aaa;
+    border-top-right-radius: 10px;
+    transform-origin: top right;
+    transform: rotate(-30deg);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+}
+
+.vinyl-wrapper.playing .tonearm {
+    transform: rotate(10deg);
+}
+
+/* Equalizer Visualizer */
+.equalizer-bars {
+    display: flex;
+    gap: 4px;
+    height: 25px;
+    align-items: flex-end;
+    margin: 0.8rem 0;
+}
+
+.equalizer-bars .bar {
+    width: 6px;
+    height: 5px;
+    background: var(--accent-pink);
+    border-radius: 3px;
+    transition: height 0.2s ease;
+}
+
+.equalizer-bars.playing .bar {
+    animation: bounce 0.6s ease-in-out infinite alternate;
+}
+
+.equalizer-bars.playing .bar:nth-child(1) { animation-delay: 0.1s; }
+.equalizer-bars.playing .bar:nth-child(2) { animation-delay: 0.3s; }
+.equalizer-bars.playing .bar:nth-child(3) { animation-delay: 0.2s; }
+.equalizer-bars.playing .bar:nth-child(4) { animation-delay: 0.5s; }
+.equalizer-bars.playing .bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0% { height: 4px; }
+    100% { height: 25px; }
 }
 
 .player-controls {
@@ -299,12 +366,11 @@ body {
 .artist-sub {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-bottom: 1rem;
 }
 
 audio {
     width: 100%;
-    margin-bottom: 1rem;
+    margin: 1rem 0;
 }
 
 .playlist {
@@ -312,7 +378,7 @@ audio {
     border: 1px solid var(--card-border);
     border-radius: 10px;
     padding: 0.8rem;
-    max-height: 150px;
+    max-height: 160px;
     overflow-y: auto;
     margin-bottom: 1rem;
 }
@@ -321,34 +387,22 @@ audio {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
+    padding: 0.6rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s ease;
 }
 
-.playlist-item:hover {
+.playlist-item:hover, .playlist-item.active {
+    background: rgba(255, 64, 129, 0.2);
     color: var(--accent-pink);
 }
 
 .add-music-methods {
     display: flex;
-    flex-direction: column;
     gap: 0.8rem;
     margin-top: 0.8rem;
-}
-
-.input-group {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.input-group input {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--card-border);
-    color: var(--text-primary);
-    padding: 0.5rem;
-    border-radius: 8px;
 }
 
 /* --- Photo Scrapbook Section --- */

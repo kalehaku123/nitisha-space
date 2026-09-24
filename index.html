@@ -17,7 +17,7 @@
     <!-- Navigation Header -->
     <header class="glass-header">
         <div class="logo">
-           ME and YOU
+            Hiiii ✨
         </div>
         <nav class="nav-links">
             <a href="#counter"><i class="fa-solid fa-clock"></i> Time</a>
@@ -64,53 +64,53 @@
             </div>
         </section>
 
-        <!-- Customizable Music Jukebox Section -->
+        <!-- Animated Music Jukebox Section -->
         <section id="music" class="glass-card section">
             <h2><i class="fa-solid fa-music"></i> Our Retro Jukebox</h2>
-            <p>Add and play your favorite romantic songs for Nitisha.</p>
+            <p>Select and play romantic melodies dedicated to Nitisha.</p>
             
             <div class="jukebox-container">
-                <div class="vinyl-wrapper">
+                <div class="vinyl-wrapper" id="vinylWrapper">
                     <div class="vinyl-record" id="vinyl">
+                        <div class="vinyl-grooves"></div>
                         <div class="vinyl-center">🎵</div>
                     </div>
+                    <div class="tonearm" id="tonearm"></div>
                 </div>
 
                 <div class="player-controls">
-                    <h3 id="currentTrackTitle">No Song Selected</h3>
-                    <p id="currentTrackArtist" class="artist-sub">Add a song below to start playing</p>
+                    <h3 id="currentTrackTitle">No Song Playing</h3>
+                    <p id="currentTrackArtist" class="artist-sub">Select a track below to start music</p>
+
+                    <!-- Animated Equalizer Bars -->
+                    <div class="equalizer-bars" id="equalizer">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
 
                     <audio id="audioPlayer" controls></audio>
 
                     <!-- Playlist Display -->
                     <div class="playlist-header">
-                        <h4><i class="fa-solid fa-list-check"></i> Your Song List</h4>
-                        <button class="btn btn-small btn-danger" id="clearPlaylistBtn" style="display:none;"><i class="fa-solid fa-trash"></i> Clear All</button>
+                        <h4><i class="fa-solid fa-list-check"></i> Playlist</h4>
+                        <button class="btn btn-small btn-danger" id="clearPlaylistBtn" style="display:none;"><i class="fa-solid fa-trash"></i> Reset</button>
                     </div>
                     <div class="playlist" id="playlist">
-                        <p class="empty-msg" id="emptyMsg">No songs added yet! Click below to add your songs.</p>
+                        <p class="empty-msg" id="emptyMsg">No songs available.</p>
                     </div>
 
-                    <!-- Song Upload Controls -->
+                    <!-- Additional Song Upload -->
                     <div class="add-song-box">
-                        <h4><i class="fa-solid fa-plus-circle"></i> Add Music</h4>
-                        
+                        <h4><i class="fa-solid fa-plus-circle"></i> Add More Music</h4>
                         <div class="add-music-methods">
-                            <!-- Direct File Upload from Device -->
                             <div class="upload-option">
                                 <label for="audioFileUpload" class="btn btn-primary btn-upload">
-                                    <i class="fa-solid fa-file-audio"></i> Upload Audio Song File
+                                    <i class="fa-solid fa-file-audio"></i> Add Song File (.mp3)
                                 </label>
                                 <input type="file" id="audioFileUpload" accept="audio/*" style="display: none;">
-                            </div>
-
-                            <p class="or-divider">- OR -</p>
-
-                            <!-- Add via Title & Link/Path -->
-                            <div class="input-group">
-                                <input type="text" id="songTitle" placeholder="Song Title">
-                                <input type="text" id="songUrl" placeholder="MP3 Link or music/song.mp3">
-                                <button class="btn btn-secondary" id="addSongBtn"><i class="fa-solid fa-plus"></i> Add</button>
                             </div>
                         </div>
                     </div>
