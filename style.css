@@ -75,7 +75,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* --- Animated Logo Glow --- */
+/* Logo Glow & Pulse Animation */
 .logo-animated {
     display: inline-block;
     animation: logoGlow 3s ease-in-out infinite alternate;
