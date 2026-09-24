@@ -17,26 +17,36 @@ resizeBloomCanvas();
 
 // Blooming Flower Particle Class
 class BloomingFlower {
-    constructor(x, y) {
-        this.x = x || Math.random() * bloomingCanvas.width;
-        this.y = y || Math.random() * bloomingCanvas.height;
-        this.maxSize = Math.random() * 25 + 15;
+    constructor(x, y, canvasWidth, canvasHeight) {
+        this.reset(canvasWidth, canvasHeight);
+        if (x && y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    reset(width, height) {
+        this.w = width || window.innerWidth;
+        this.h = height || window.innerHeight;
+        this.x = Math.random() * this.w;
+        this.y = Math.random() * this.h;
+        this.maxSize = Math.random() * 22 + 14;
         this.currentSize = 0;
-        this.growthRate = Math.random() * 0.3 + 0.2;
+        this.growthRate = Math.random() * 0.25 + 0.15;
         this.petals = Math.floor(Math.random() * 3) + 5;
-        this.petalColor = ['#ff4081', '#ff79b0', '#ff80ab', '#e91e63', '#f48fb1'][Math.floor(Math.random() * 5)];
+        this.petalColor = ['#ff4081', '#ff79b0', '#ff80ab', '#e91e63', '#f48fb1', '#ea80fc'][Math.floor(Math.random() * 6)];
         this.centerColor = '#ffd54f';
         this.opacity = 0;
-        this.maxOpacity = Math.random() * 0.7 + 0.3;
+        this.maxOpacity = Math.random() * 0.65 + 0.25;
         this.angle = Math.random() * Math.PI * 2;
-        this.rotationSpeed = (Math.random() - 0.5) * 0.01;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.008;
     }
 
     update() {
         if (this.currentSize < this.maxSize) {
             this.currentSize += this.growthRate;
             if (this.opacity < this.maxOpacity) {
-                this.opacity += 0.02;
+                this.opacity += 0.015;
             }
         } else {
             this.opacity -= 0.002;
@@ -45,52 +55,44 @@ class BloomingFlower {
         this.angle += this.rotationSpeed;
 
         if (this.opacity <= 0) {
-            this.reset();
+            this.reset(this.w, this.h);
         }
     }
 
-    reset() {
-        this.x = Math.random() * bloomingCanvas.width;
-        this.y = Math.random() * bloomingCanvas.height;
-        this.currentSize = 0;
-        this.opacity = 0;
-        this.maxSize = Math.random() * 25 + 15;
-    }
+    draw(ctxToUse) {
+        if (!ctxToUse || this.opacity <= 0) return;
 
-    draw() {
-        if (!bCtx || this.opacity <= 0) return;
-
-        bCtx.save();
-        bCtx.translate(this.x, this.y);
-        bCtx.rotate(this.angle);
-        bCtx.globalAlpha = Math.max(0, this.opacity);
+        ctxToUse.save();
+        ctxToUse.translate(this.x, this.y);
+        ctxToUse.rotate(this.angle);
+        ctxToUse.globalAlpha = Math.max(0, this.opacity);
 
         // Draw Petals
-        bCtx.fillStyle = this.petalColor;
+        ctxToUse.fillStyle = this.petalColor;
         for (let i = 0; i < this.petals; i++) {
             const petalAngle = (i * 2 * Math.PI) / this.petals;
-            bCtx.save();
-            bCtx.rotate(petalAngle);
-            bCtx.beginPath();
-            bCtx.ellipse(0, this.currentSize / 1.8, this.currentSize / 3.5, this.currentSize / 1.8, 0, 0, Math.PI * 2);
-            bCtx.fill();
-            bCtx.restore();
+            ctxToUse.save();
+            ctxToUse.rotate(petalAngle);
+            ctxToUse.beginPath();
+            ctxToUse.ellipse(0, this.currentSize / 1.8, this.currentSize / 3.5, this.currentSize / 1.8, 0, 0, Math.PI * 2);
+            ctxToUse.fill();
+            ctxToUse.restore();
         }
 
         // Draw Flower Center
-        bCtx.fillStyle = this.centerColor;
-        bCtx.beginPath();
-        bCtx.arc(0, 0, this.currentSize / 4, 0, Math.PI * 2);
-        bCtx.fill();
+        ctxToUse.fillStyle = this.centerColor;
+        ctxToUse.beginPath();
+        ctxToUse.arc(0, 0, this.currentSize / 4, 0, Math.PI * 2);
+        ctxToUse.fill();
 
-        bCtx.restore();
+        ctxToUse.restore();
     }
 }
 
-// Generate Blooming Flowers
+// Generate Blooming Flowers for Lock Screen
 if (bloomingCanvas) {
-    for (let i = 0; i < 25; i++) {
-        bloomFlowers.push(new BloomingFlower());
+    for (let i = 0; i < 22; i++) {
+        bloomFlowers.push(new BloomingFlower(null, null, bloomingCanvas.width, bloomingCanvas.height));
     }
 }
 
@@ -98,12 +100,11 @@ let lastTime = 0;
 function animateBloom(timestamp) {
     if (isUnlocked) return;
 
-    // Capped frame updates to keep CPU low
     if (timestamp - lastTime > 25) {
         bCtx.clearRect(0, 0, bloomingCanvas.width, bloomingCanvas.height);
         for (let i = 0; i < bloomFlowers.length; i++) {
             bloomFlowers[i].update();
-            bloomFlowers[i].draw();
+            bloomFlowers[i].draw(bCtx);
         }
         lastTime = timestamp;
     }
@@ -124,7 +125,7 @@ function handleSiteUnlock() {
     const entered = sitePasswordInput.value.trim().toLowerCase();
     if (entered === 'iloveyounitisha' || entered === 'iloveyoushrijan') {
         isUnlocked = true;
-        if (bloomAnimFrame) cancelAnimationFrame(bloomAnimFrame); // Instantly stop animation loop to free memory
+        if (bloomAnimFrame) cancelAnimationFrame(bloomAnimFrame);
 
         siteLockScreen.classList.add('unlocked');
         document.body.classList.remove('locked');
@@ -150,58 +151,41 @@ if (sitePasswordInput) {
     });
 }
 
-// --- Background Floating Hearts Canvas ---
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas ? canvas.getContext('2d') : null;
-let particles = [];
+// --- Main Website Background Blooming Flowers Canvas ---
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas ? bgCanvas.getContext('2d') : null;
+let bgFlowers = [];
 
-function resizeCanvas() {
-    if (!canvas) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function resizeBgCanvas() {
+    if (!bgCanvas) return;
+    bgCanvas.width = window.innerWidth;
+    bgCanvas.height = window.innerHeight;
 }
-window.addEventListener('resize', resizeCanvas, { passive: true });
-resizeCanvas();
+window.addEventListener('resize', resizeBgCanvas, { passive: true });
+resizeBgCanvas();
 
-class Particle {
-    constructor() { this.reset(); }
-    reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 20;
-        this.size = Math.random() * 10 + 6;
-        this.speedY = Math.random() * 0.8 + 0.3;
-        this.opacity = Math.random() * 0.4 + 0.2;
+if (bgCanvas) {
+    for (let i = 0; i < 20; i++) {
+        bgFlowers.push(new BloomingFlower(null, null, bgCanvas.width, bgCanvas.height));
     }
-    update() {
-        this.y -= this.speedY;
-        if (this.y < -20) this.reset();
-    }
-    draw() {
-        ctx.globalAlpha = this.opacity;
-        ctx.fillStyle = '#ff79b0';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-if (canvas) {
-    for (let i = 0; i < 15; i++) particles.push(new Particle());
 }
 
 let bgLastTime = 0;
-function animateParticles(timestamp) {
-    if (timestamp - bgLastTime > 33) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < particles.length; i++) {
-            particles[i].update();
-            particles[i].draw();
+function animateBgFlowers(timestamp) {
+    if (timestamp - bgLastTime > 28) {
+        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+        for (let i = 0; i < bgFlowers.length; i++) {
+            bgFlowers[i].update();
+            bgFlowers[i].draw(bgCtx);
         }
         bgLastTime = timestamp;
     }
-    requestAnimationFrame(animateParticles);
+    requestAnimationFrame(animateBgFlowers);
 }
-if (canvas) requestAnimationFrame(animateParticles);
+
+if (bgCanvas) {
+    requestAnimationFrame(animateBgFlowers);
+}
 
 // --- Theme Toggle ---
 const themeBtn = document.getElementById('themeBtn');
@@ -223,7 +207,7 @@ if (loveBurstBtn) {
                 particleCount: 50,
                 spread: 60,
                 origin: { y: 0.6 },
-                colors: ['#ff4081', '#ff79b0', '#ffffff']
+                colors: ['#ff4081', '#ff79b0', '#ffffff', '#ffd54f']
             });
         }
     });
