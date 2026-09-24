@@ -59,9 +59,9 @@ document.getElementById('loveBurstBtn').addEventListener('click', () => {
     });
 });
 
-// --- Anniversary Counter (Default Set to August 15) ---
+// --- Anniversary Counter (Set to August 15, 2026) ---
 const startDateInput = document.getElementById('startDateInput');
-let startDate = localStorage.getItem('anniversaryDate') || '2023-08-15';
+let startDate = localStorage.getItem('anniversaryDate') || '2026-08-15';
 startDateInput.value = startDate;
 
 startDateInput.addEventListener('change', (e) => {
@@ -198,7 +198,19 @@ renderPlaylist();
 
 // --- Interactive Photo Scrapbook Gallery ---
 const galleryGrid = document.getElementById('galleryGrid');
-let photos = JSON.parse(localStorage.getItem('nitishaPhotos')) || [];
+
+// 7 Permanent Photos
+const defaultPhotos = [
+    { url: 'photo1.jpg', caption: '' },
+    { url: 'photo2.jpg', caption: '' },
+    { url: 'photo3.jpg', caption: '' },
+    { url: 'photo4.jpg', caption: '' },
+    { url: 'photo5.jpg', caption: '' },
+    { url: 'photo6.jpg', caption: '' },
+    { url: 'photo7.jpg', caption: '' }
+];
+
+let photos = JSON.parse(localStorage.getItem('nitishaPhotos')) || defaultPhotos;
 
 function renderGallery() {
     galleryGrid.innerHTML = '';
@@ -209,7 +221,6 @@ function renderGallery() {
     photos.forEach((photo, index) => {
         const item = document.createElement('div');
         item.className = 'polaroid';
-        // Only render paragraph if a caption was actually entered
         const captionHTML = photo.caption ? `<p>${photo.caption}</p>` : '';
         item.innerHTML = `
             <button class="delete-photo-btn" onclick="deletePhoto(${index})"><i class="fa-solid fa-xmark"></i></button>
@@ -267,7 +278,7 @@ document.getElementById('lockVaultBtn').addEventListener('click', () => {
 
 // Vault Secret Notes
 let secretNotes = JSON.parse(localStorage.getItem('vaultNotes')) || [
-    "August 15 - The day our story officially began. I promise to love and cherish you every single day, Nitisha ❤️"
+    "August 15, 2026 - The day our story officially began. I promise to love and cherish you every single day, Nitisha ❤️"
 ];
 
 function renderNotes() {
