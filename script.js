@@ -1,15 +1,18 @@
-// --- Fullscreen Blooming Heart/Flower Lock Screen ---
+// --- Optimized Fullscreen Lock Screen Overlay ---
 document.body.classList.add('locked');
 
 const bloomingCanvas = document.getElementById('bloomingCanvas');
-const bCtx = bloomingCanvas.getContext('2d');
+const bCtx = bloomingCanvas ? bloomingCanvas.getContext('2d') : null;
 let bloomParticles = [];
+let bloomAnimFrame = null;
+let isUnlocked = false;
 
 function resizeBloomCanvas() {
+    if (!bloomingCanvas) return;
     bloomingCanvas.width = window.innerWidth;
     bloomingCanvas.height = window.innerHeight;
 }
-window.addEventListener('resize', resizeBloomCanvas);
+window.addEventListener('resize', resizeBloomCanvas, { passive: true });
 resizeBloomCanvas();
 
 class BloomParticle {
@@ -18,46 +21,50 @@ class BloomParticle {
     }
     reset() {
         this.x = Math.random() * bloomingCanvas.width;
-        this.y = bloomingCanvas.height + Math.random() * 50;
-        this.size = Math.random() * 18 + 10;
-        this.speedY = Math.random() * 1.2 + 0.6;
-        this.speedX = Math.sin(Math.random() * Math.PI) * 0.8;
-        this.opacity = Math.random() * 0.7 + 0.3;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.rotSpeed = (Math.random() - 0.5) * 0.03;
-        const symbols = ['🌸', '💖', '🌺', '✨', '🌹'];
-        this.type = symbols[Math.floor(Math.random() * symbols.length)];
+        this.y = bloomingCanvas.height + Math.random() * 20;
+        this.size = Math.random() * 8 + 6;
+        this.speedY = Math.random() * 0.8 + 0.4;
+        this.speedX = Math.sin(Math.random() * Math.PI) * 0.5;
+        this.opacity = Math.random() * 0.5 + 0.3;
     }
     update() {
         this.y -= this.speedY;
         this.x += this.speedX;
-        this.rotation += this.rotSpeed;
-        if (this.y < -30) this.reset();
+        if (this.y < -20) this.reset();
     }
     draw() {
-        bCtx.save();
         bCtx.globalAlpha = this.opacity;
-        bCtx.translate(this.x, this.y);
-        bCtx.rotate(this.rotation);
-        bCtx.font = `${this.size}px serif`;
-        bCtx.textAlign = 'center';
-        bCtx.textBaseline = 'middle';
-        bCtx.fillText(this.type, 0, 0);
-        bCtx.restore();
+        bCtx.fillStyle = '#ff4081';
+        bCtx.beginPath();
+        bCtx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+        bCtx.fill();
     }
 }
 
-for (let i = 0; i < 40; i++) bloomParticles.push(new BloomParticle());
-
-function animateBloom() {
-    if (document.getElementById('siteLockScreen').classList.contains('unlocked')) return;
-    bCtx.clearRect(0, 0, bloomingCanvas.width, bloomingCanvas.height);
-    bloomParticles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animateBloom);
+if (bloomingCanvas) {
+    for (let i = 0; i < 20; i++) bloomParticles.push(new BloomParticle());
 }
-animateBloom();
 
-// Password Check Logic
+let lastTime = 0;
+function animateBloom(timestamp) {
+    if (isUnlocked) return;
+    
+    if (timestamp - lastTime > 30) {
+        bCtx.clearRect(0, 0, bloomingCanvas.width, bloomingCanvas.height);
+        for (let i = 0; i < bloomParticles.length; i++) {
+            bloomParticles[i].update();
+            bloomParticles[i].draw();
+        }
+        lastTime = timestamp;
+    }
+    bloomAnimFrame = requestAnimationFrame(animateBloom);
+}
+
+if (bloomingCanvas) {
+    bloomAnimFrame = requestAnimationFrame(animateBloom);
+}
+
+// Password Unlock Logic
 const siteLockScreen = document.getElementById('siteLockScreen');
 const sitePasswordInput = document.getElementById('sitePasswordInput');
 const unlockSiteBtn = document.getElementById('unlockSiteBtn');
@@ -66,35 +73,44 @@ const lockErrorMsg = document.getElementById('lockErrorMsg');
 function handleSiteUnlock() {
     const entered = sitePasswordInput.value.trim().toLowerCase();
     if (entered === 'iloveyounitisha' || entered === 'iloveyoushrijan') {
+        isUnlocked = true;
+        if (bloomAnimFrame) cancelAnimationFrame(bloomAnimFrame);
+        
         siteLockScreen.classList.add('unlocked');
         document.body.classList.remove('locked');
-        confetti({
-            particleCount: 120,
-            spread: 80,
-            origin: { y: 0.5 },
-            colors: ['#ff4081', '#ff79b0', '#ffffff', '#ff1493']
-        });
+
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 70,
+                spread: 60,
+                origin: { y: 0.5 },
+                colors: ['#ff4081', '#ff79b0', '#ffffff']
+            });
+        }
     } else {
         lockErrorMsg.innerText = "Incorrect password! Hint: iloveyou...";
         sitePasswordInput.value = '';
     }
 }
 
-unlockSiteBtn.addEventListener('click', handleSiteUnlock);
-sitePasswordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSiteUnlock();
-});
+if (unlockSiteBtn) unlockSiteBtn.addEventListener('click', handleSiteUnlock);
+if (sitePasswordInput) {
+    sitePasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSiteUnlock();
+    });
+}
 
-// --- Floating Background Hearts Canvas ---
+// --- Background Floating Particles Canvas ---
 const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas ? canvas.getContext('2d') : null;
 let particles = [];
 
 function resizeCanvas() {
+    if (!canvas) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize', resizeCanvas, { passive: true });
 resizeCanvas();
 
 class Particle {
@@ -102,10 +118,9 @@ class Particle {
     reset() {
         this.x = Math.random() * canvas.width;
         this.y = canvas.height + Math.random() * 20;
-        this.size = Math.random() * 12 + 8;
-        this.speedY = Math.random() * 1 + 0.5;
-        this.opacity = Math.random() * 0.5 + 0.3;
-        this.type = Math.random() > 0.5 ? '❤️' : '✨';
+        this.size = Math.random() * 10 + 6;
+        this.speedY = Math.random() * 0.8 + 0.3;
+        this.opacity = Math.random() * 0.4 + 0.2;
     }
     update() {
         this.y -= this.speedY;
@@ -113,48 +128,67 @@ class Particle {
     }
     draw() {
         ctx.globalAlpha = this.opacity;
-        ctx.font = `${this.size}px serif`;
-        ctx.fillText(this.type, this.x, this.y);
+        ctx.fillStyle = '#ff79b0';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+        ctx.fill();
     }
 }
 
-for (let i = 0; i < 25; i++) particles.push(new Particle());
+if (canvas) {
+    for (let i = 0; i < 15; i++) particles.push(new Particle());
+}
 
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => { p.update(); p.draw(); });
+let bgLastTime = 0;
+function animateParticles(timestamp) {
+    if (timestamp - bgLastTime > 33) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+        }
+        bgLastTime = timestamp;
+    }
     requestAnimationFrame(animateParticles);
 }
-animateParticles();
+if (canvas) requestAnimationFrame(animateParticles);
 
 // --- Theme Toggle ---
 const themeBtn = document.getElementById('themeBtn');
-themeBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    themeBtn.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
-});
+if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        themeBtn.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    });
+}
 
 // --- Love Burst Confetti ---
-document.getElementById('loveBurstBtn').addEventListener('click', () => {
-    confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff4081', '#ff79b0', '#ffffff']
+const loveBurstBtn = document.getElementById('loveBurstBtn');
+if (loveBurstBtn) {
+    loveBurstBtn.addEventListener('click', () => {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.6 },
+                colors: ['#ff4081', '#ff79b0', '#ffffff']
+            });
+        }
     });
-});
+}
 
-// --- Anniversary Counter (August 15, 2026) ---
+// --- Relationship Counter ---
 const startDateInput = document.getElementById('startDateInput');
 let startDate = localStorage.getItem('anniversaryDate') || '2026-08-15';
-startDateInput.value = startDate;
-
-startDateInput.addEventListener('change', (e) => {
-    startDate = e.target.value;
-    localStorage.setItem('anniversaryDate', startDate);
-});
+if (startDateInput) {
+    startDateInput.value = startDate;
+    startDateInput.addEventListener('change', (e) => {
+        startDate = e.target.value;
+        localStorage.setItem('anniversaryDate', startDate);
+    });
+}
 
 function updateCounter() {
     const start = new Date(startDate).getTime();
@@ -174,14 +208,17 @@ function updateCounter() {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    document.getElementById('days').innerText = String(days).padStart(2, '0');
-    document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-    document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+    const dEl = document.getElementById('days');
+    if (dEl) {
+        dEl.innerText = String(days).padStart(2, '0');
+        document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+    }
 }
 setInterval(updateCounter, 1000);
 
-// --- Custom Animated Music Jukebox ---
+// --- Audio Player Jukebox ---
 const audioPlayer = document.getElementById('audioPlayer');
 const vinyl = document.getElementById('vinyl');
 const vinylWrapper = document.getElementById('vinylWrapper');
@@ -200,17 +237,13 @@ const defaultPlaylist = [
 let playlist = JSON.parse(localStorage.getItem('myCustomPlaylist')) || defaultPlaylist;
 
 function renderPlaylist() {
+    if (!playlistContainer) return;
     playlistContainer.innerHTML = '';
     
     if (playlist.length === 0) {
-        playlistContainer.appendChild(emptyMsg);
-        emptyMsg.style.display = 'block';
-        currentTrackTitle.innerText = "No Song Selected";
-        currentTrackArtist.innerText = "Select a song to start";
+        if (emptyMsg) playlistContainer.appendChild(emptyMsg);
         return;
     }
-
-    emptyMsg.style.display = 'none';
 
     playlist.forEach((song, index) => {
         const item = document.createElement('div');
@@ -231,15 +264,10 @@ function renderPlaylist() {
 }
 
 function playTrack(index) {
-    if (!playlist[index]) return;
+    if (!playlist[index] || !audioPlayer) return;
     audioPlayer.src = playlist[index].url;
-    currentTrackTitle.innerText = playlist[index].title;
-    currentTrackArtist.innerText = "Playing for Nitisha ❤️";
-    
-    document.querySelectorAll('.playlist-item').forEach((el, i) => {
-        el.classList.toggle('active', i === index);
-    });
-
+    if (currentTrackTitle) currentTrackTitle.innerText = playlist[index].title;
+    if (currentTrackArtist) currentTrackArtist.innerText = "Playing for Nitisha ❤️";
     audioPlayer.play();
 }
 
@@ -249,36 +277,39 @@ function deleteSong(index) {
     renderPlaylist();
 }
 
-document.getElementById('audioFileUpload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const songName = file.name.replace(/\.[^/.]+$/, "");
-        const fileURL = URL.createObjectURL(file);
-        
-        playlist.push({ title: songName, url: fileURL });
-        localStorage.setItem('myCustomPlaylist', JSON.stringify(playlist));
-        renderPlaylist();
-        playTrack(playlist.length - 1);
-    }
-});
+const audioUpload = document.getElementById('audioFileUpload');
+if (audioUpload) {
+    audioUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const songName = file.name.replace(/\.[^/.]+$/, "");
+            const fileURL = URL.createObjectURL(file);
+            playlist.push({ title: songName, url: fileURL });
+            localStorage.setItem('myCustomPlaylist', JSON.stringify(playlist));
+            renderPlaylist();
+            playTrack(playlist.length - 1);
+        }
+    });
+}
 
-audioPlayer.addEventListener('play', () => {
-    vinyl.classList.add('playing');
-    vinylWrapper.classList.add('playing');
-    equalizer.classList.add('playing');
-});
+if (audioPlayer) {
+    audioPlayer.addEventListener('play', () => {
+        if (vinyl) vinyl.classList.add('playing');
+        if (vinylWrapper) vinylWrapper.classList.add('playing');
+        if (equalizer) equalizer.classList.add('playing');
+    });
 
-audioPlayer.addEventListener('pause', () => {
-    vinyl.classList.remove('playing');
-    vinylWrapper.classList.remove('playing');
-    equalizer.classList.remove('playing');
-});
+    audioPlayer.addEventListener('pause', () => {
+        if (vinyl) vinyl.classList.remove('playing');
+        if (vinylWrapper) vinylWrapper.classList.remove('playing');
+        if (equalizer) equalizer.classList.remove('playing');
+    });
+}
 
 renderPlaylist();
 
-// --- Interactive Photo Scrapbook Gallery ---
+// --- Scrapbook Gallery ---
 const galleryGrid = document.getElementById('galleryGrid');
-
 const defaultPhotos = [
     { url: 'photo1.jpg', caption: '' },
     { url: 'photo2.jpg', caption: '' },
@@ -292,23 +323,17 @@ const defaultPhotos = [
 let photos = JSON.parse(localStorage.getItem('nitishaPhotos')) || defaultPhotos;
 
 function renderGallery() {
+    if (!galleryGrid) return;
     galleryGrid.innerHTML = '';
-    if (photos.length === 0) {
-        galleryGrid.innerHTML = '<p class="empty-msg" style="grid-column: 1/-1;">No photos added yet.</p>';
-        return;
-    }
     photos.forEach((photo, index) => {
         const item = document.createElement('div');
         item.className = 'polaroid';
-        const captionHTML = photo.caption ? `<p>${photo.caption}</p>` : '';
         item.innerHTML = `
             <button class="delete-photo-btn" onclick="deletePhoto(event, ${index})"><i class="fa-solid fa-xmark"></i></button>
-            <img src="${photo.url}" alt="Memory">
-            ${captionHTML}
+            <img src="${photo.url}" alt="Memory" loading="lazy">
+            ${photo.caption ? `<p>${photo.caption}</p>` : ''}
         `;
-        
         item.addEventListener('click', () => openPhotoModal(photo.url, photo.caption));
-
         galleryGrid.appendChild(item);
     });
 }
@@ -320,74 +345,83 @@ function deletePhoto(event, index) {
     renderGallery();
 }
 
-document.getElementById('imageUpload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    const caption = document.getElementById('captionInput').value.trim();
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            photos.unshift({ url: event.target.result, caption: caption });
-            localStorage.setItem('nitishaPhotos', JSON.stringify(photos));
-            renderGallery();
-            document.getElementById('captionInput').value = '';
-        };
-        reader.readAsDataURL(file);
-    }
-});
+const imageUpload = document.getElementById('imageUpload');
+if (imageUpload) {
+    imageUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        const caption = document.getElementById('captionInput').value.trim();
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                photos.unshift({ url: event.target.result, caption: caption });
+                localStorage.setItem('nitishaPhotos', JSON.stringify(photos));
+                renderGallery();
+                document.getElementById('captionInput').value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
 renderGallery();
 
-// --- Photo Lightbox / Zoom Logic ---
+// --- Photo Lightbox Modal ---
 const photoModal = document.getElementById('photoModal');
 const modalImg = document.getElementById('modalImg');
 const modalCaption = document.getElementById('modalCaption');
 const modalClose = document.getElementById('modalClose');
 
 function openPhotoModal(url, caption) {
+    if (!photoModal) return;
     photoModal.style.display = 'block';
     modalImg.src = url;
     modalCaption.innerText = caption || 'Nitisha & Me ❤️';
 }
 
-modalClose.addEventListener('click', () => {
-    photoModal.style.display = 'none';
-});
+if (modalClose) {
+    modalClose.addEventListener('click', () => { photoModal.style.display = 'none'; });
+}
+if (photoModal) {
+    photoModal.addEventListener('click', (e) => {
+        if (e.target === photoModal) photoModal.style.display = 'none';
+    });
+}
 
-photoModal.addEventListener('click', (e) => {
-    if (e.target === photoModal) {
-        photoModal.style.display = 'none';
-    }
-});
-
-// --- Secret Vault Passcode (PIN: 1429) ---
+// --- Vault PIN (1429) ---
 const VAULT_PASSCODE = '1429';
 const vaultLocked = document.getElementById('vaultLocked');
 const vaultUnlocked = document.getElementById('vaultUnlocked');
+const unlockVaultBtn = document.getElementById('unlockVaultBtn');
 
-document.getElementById('unlockVaultBtn').addEventListener('click', () => {
-    const pin = document.getElementById('vaultPasscode').value;
-    if (pin === VAULT_PASSCODE) {
-        vaultLocked.classList.add('hidden');
-        vaultUnlocked.classList.remove('hidden');
-        renderNotes();
-    } else {
-        alert('Incorrect passcode!');
+if (unlockVaultBtn) {
+    unlockVaultBtn.addEventListener('click', () => {
+        const pin = document.getElementById('vaultPasscode').value;
+        if (pin === VAULT_PASSCODE) {
+            vaultLocked.classList.add('hidden');
+            vaultUnlocked.classList.remove('hidden');
+            renderNotes();
+        } else {
+            alert('Incorrect passcode!');
+            document.getElementById('vaultPasscode').value = '';
+        }
+    });
+}
+
+const lockVaultBtn = document.getElementById('lockVaultBtn');
+if (lockVaultBtn) {
+    lockVaultBtn.addEventListener('click', () => {
+        vaultUnlocked.classList.add('hidden');
+        vaultLocked.classList.remove('hidden');
         document.getElementById('vaultPasscode').value = '';
-    }
-});
+    });
+}
 
-document.getElementById('lockVaultBtn').addEventListener('click', () => {
-    vaultUnlocked.classList.add('hidden');
-    vaultLocked.classList.remove('hidden');
-    document.getElementById('vaultPasscode').value = '';
-});
-
-// Vault Secret Notes
 let secretNotes = JSON.parse(localStorage.getItem('vaultNotes')) || [
     "August 15, 2026 - The day our story officially began. I promise to love and cherish you every single day, Nitisha ❤️"
 ];
 
 function renderNotes() {
     const notesList = document.getElementById('notesList');
+    if (!notesList) return;
     notesList.innerHTML = '';
     secretNotes.forEach(note => {
         const card = document.createElement('div');
@@ -397,12 +431,15 @@ function renderNotes() {
     });
 }
 
-document.getElementById('saveNoteBtn').addEventListener('click', () => {
-    const input = document.getElementById('secretNoteInput');
-    if (input.value.trim()) {
-        secretNotes.unshift(input.value.trim());
-        localStorage.setItem('vaultNotes', JSON.stringify(secretNotes));
-        renderNotes();
-        input.value = '';
-    }
-});
+const saveNoteBtn = document.getElementById('saveNoteBtn');
+if (saveNoteBtn) {
+    saveNoteBtn.addEventListener('click', () => {
+        const input = document.getElementById('secretNoteInput');
+        if (input && input.value.trim()) {
+            secretNotes.unshift(input.value.trim());
+            localStorage.setItem('vaultNotes', JSON.stringify(secretNotes));
+            renderNotes();
+            input.value = '';
+        }
+    });
+}

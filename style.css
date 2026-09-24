@@ -43,24 +43,28 @@ body {
 }
 
 body.locked {
-    overflow: hidden;
+    overflow: hidden !important;
 }
 
-/* --- Fixed Fullscreen Lock Screen Overlay --- */
+/* --- Optimized Fullscreen Lock Screen Overlay --- */
 .lock-screen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(135deg, #0d0614, #1d0a27, #2c0722);
-    z-index: 99999;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: #0d0614;
+    z-index: 999999 !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 1;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    transform: translate3d(0, 0, 0);
+    will-change: opacity, visibility;
 }
 
 .lock-screen-overlay.unlocked {
@@ -86,14 +90,11 @@ body.locked {
     max-width: 420px;
     width: 90%;
     padding: 2.5rem 2rem;
-    box-shadow: 0 0 35px rgba(255, 64, 129, 0.35);
+    box-shadow: 0 0 25px rgba(255, 64, 129, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    animation: lockPulse 4s infinite alternate;
-}
-
-@keyframes lockPulse {
-    0% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 64, 129, 0.2); }
-    100% { transform: scale(1.02); box-shadow: 0 0 45px rgba(255, 64, 129, 0.4); }
+    background: rgba(20, 10, 30, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
 }
 
 .lock-icon {
@@ -173,17 +174,6 @@ body.locked {
     font-weight: 700;
     color: var(--accent-pink);
     letter-spacing: 0.5px;
-}
-
-.logo-animated {
-    display: inline-block;
-    animation: logoGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes logoGlow {
-    0% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 64, 129, 0.4); }
-    50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(255, 64, 129, 0.8); }
-    100% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 64, 129, 0.4); }
 }
 
 .nav-links {
@@ -590,7 +580,7 @@ audio {
     z-index: 5;
 }
 
-/* --- Photo Zoom Modal / Lightbox --- */
+/* --- Photo Zoom Modal Lightbox --- */
 .photo-modal {
     display: none;
     position: fixed;
